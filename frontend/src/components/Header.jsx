@@ -14,6 +14,8 @@ export default function Header() {
           <li><Link to="/hospitals" className="hover:text-blue-200">Hospitals</Link></li>
           <li><Link to="/medicine" className="hover:text-blue-200">Medicine</Link></li>
           <li><Link to="/emergency" className="hover:text-blue-200">Emergency</Link></li>
+          <li><Link to="/login" className="bg-blue-700 px-3 py-1 rounded hover:bg-blue-800">Login</Link></li>
+          <li><Link to="/signup" className="bg-green-600 px-3 py-1 rounded hover:bg-green-700">Sign Up</Link></li>
         </ul>
       </nav>
     </header>
