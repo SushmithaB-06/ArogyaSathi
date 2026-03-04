@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+console.log('API Base URL:', API_BASE_URL);
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -23,6 +25,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error('API Error:', error.response?.data || error.message);
     if (error.response?.status === 401) {
       // Unauthorized - token expired
       localStorage.removeItem('authToken');
@@ -48,8 +51,10 @@ export const authAPI = {
 // ============ SYMPTOM ANALYSIS API CALLS ============
 
 export const symptomAPI = {
-  analyze: (symptoms, language = 'en') =>
-    api.post('/symptoms/analyze', { symptoms, language }),
+  analyze: (symptoms, language = 'en') => {
+    console.log('Analyzing symptoms:', { symptoms, language });
+    return api.post('/symptoms/analyze', { symptoms, language });
+  },
 
   getHistory: (userId) =>
     api.get(`/symptoms/history/${userId}`),
@@ -58,11 +63,22 @@ export const symptomAPI = {
 // ============ HOSPITAL FINDER API CALLS ============
 
 export const hospitalAPI = {
-  findNearby: (lat, lng, radius = 5000) =>
-    api.get('/hospitals/nearby', { params: { lat, lng, radius } }),
+  findNearby: (lat, lng, radius = 5000) => {
+    console.log('Finding hospitals:', { lat, lng, radius });
+    return api.get('/hospitals/nearby', { 
+      params: { 
+        lat: parseFloat(lat), 
+        lng: parseFloat(lng), 
+        radius: parseInt(radius) 
+      } 
+    });
+  },
 
   search: (query) =>
     api.get('/hospitals/search', { params: { query } }),
+
+  getAll: () =>
+    api.get('/hospitals/all'),
 };
 
 // ============ MEDICINE REMINDER API CALLS ============

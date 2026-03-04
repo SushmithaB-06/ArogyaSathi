@@ -13,7 +13,7 @@ export default function SymptomChecker() {
 
   const handleStartVoiceInput = () => {
     if (!voiceService.isSupported()) {
-      setError('Voice input is not supported in your browser. Please use Chrome, Edge, or Safari.');
+      setError('Voice input is not supported in your browser');
       return;
     }
 
@@ -66,129 +66,181 @@ export default function SymptomChecker() {
     setError('');
   };
 
+  // Severity color map
+  const getSeverityColor = (severity) => {
+    switch(severity) {
+      case 'mild':
+        return 'bg-green-100 text-green-800';
+      case 'moderate':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'severe':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold text-blue-600 mb-6">🩺 Symptom Checker</h1>
-
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        {/* Language Selector */}
-        <div className="mb-6">
-          <label className="block text-gray-700 font-bold mb-2">Select Language for Voice Input</label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            className="w-full border-2 border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
-          >
-            {Object.entries(voiceService.languages).map(([name, code]) => (
-              <option key={code} value={code}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <p className="text-gray-600 mb-4">
-          📝 Enter your symptoms separated by commas (e.g., fever, cough, headache)
-        </p>
-
-        <textarea
-          value={symptoms}
-          onChange={(e) => setSymptoms(e.target.value)}
-          placeholder="Describe your symptoms here... or use voice input below"
-          className="w-full border-2 border-gray-300 rounded p-4 h-32 mb-4 focus:outline-none focus:border-blue-500"
-        />
-
-        {/* Voice Input Buttons */}
-        <div className="flex gap-3 mb-6">
-          <button
-            onClick={handleStartVoiceInput}
-            disabled={isListening}
-            className="flex-1 bg-purple-600 text-white py-3 rounded font-bold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            🎤 {isListening ? 'Listening...' : 'Start Voice Input'}
-          </button>
-
-          {isListening && (
-            <button
-              onClick={handleStopVoiceInput}
-              className="flex-1 bg-red-600 text-white py-3 rounded font-bold hover:bg-red-700 transition flex items-center justify-center gap-2"
-            >
-              ⏹️ Stop Listening
-            </button>
-          )}
-        </div>
-
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12 animate-fadeInUp">
+          <div className="inline-block p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+            <span className="text-5xl">🩺</span>
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-3 mb-6">
-          <button
-            onClick={handleAnalyze}
-            disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            {loading ? 'Analyzing...' : '🔍 Analyze Symptoms'}
-          </button>
-
-          <button
-            onClick={handleClear}
-            className="flex-1 bg-gray-600 text-white py-3 rounded font-bold hover:bg-gray-700 transition"
-          >
-            🗑️ Clear
-          </button>
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            Symptom Checker
+          </h1>
+          <p className="text-xl text-gray-600">
+            Describe your symptoms and get instant AI-powered health insights
+          </p>
         </div>
 
-        {/* Results */}
+        {/* Main Card */}
+        <div className="card shadow-2xl mb-8">
+          {/* Language Selector */}
+          <div className="mb-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+            <label className="block text-gray-800 font-bold mb-3">🗣️ Select Language for Voice Input</label>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full border-2 border-purple-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-4 focus:ring-purple-200"
+            >
+              {Object.entries(voiceService.languages).map(([name, code]) => (
+                <option key={code} value={code}>{name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Symptoms Input */}
+          <div className="mb-8">
+            <label className="block text-gray-800 font-bold mb-3">📝 Describe Your Symptoms</label>
+            <textarea
+              value={symptoms}
+              onChange={(e) => setSymptoms(e.target.value)}
+              placeholder="e.g., fever, cough, sore throat, body pain..."
+              className="w-full border-2 border-gray-300 rounded-xl p-4 h-40 focus:outline-none focus:ring-4 focus:ring-blue-200 text-lg"
+            />
+          </div>
+
+          {/* Voice Buttons */}
+          <div className="flex gap-3 mb-8 flex-wrap">
+            <button
+              onClick={handleStartVoiceInput}
+              disabled={isListening}
+              className="flex-1 min-w-max btn-secondary disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              🎤 {isListening ? 'Listening...' : 'Start Voice Input'}
+            </button>
+
+            {isListening && (
+              <button
+                onClick={handleStopVoiceInput}
+                className="flex-1 min-w-max btn-danger flex items-center justify-center gap-2"
+              >
+                ⏹️ Stop Listening
+              </button>
+            )}
+          </div>
+
+          {/* Error Alert */}
+          {error && (
+            <div className="mb-8 p-4 bg-red-50 border-2 border-red-300 rounded-xl text-red-700 font-semibold flex items-center gap-2">
+              <span className="text-2xl">⚠️</span> {error}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 flex-wrap">
+            <button
+              onClick={handleAnalyze}
+              disabled={loading}
+              className="flex-1 min-w-max btn-primary disabled:opacity-50 text-lg py-4"
+            >
+              {loading ? '⏳ Analyzing...' : '🔍 Analyze Symptoms'}
+            </button>
+
+            <button
+              onClick={handleClear}
+              className="flex-1 min-w-max bg-gray-600 text-white py-4 rounded-lg font-bold hover:bg-gray-700 transition-all text-lg"
+            >
+              🗑️ Clear
+            </button>
+          </div>
+        </div>
+
+        {/* Results Section */}
         {result && (
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">📊 Analysis Results</h2>
+          <div className="animate-fadeInUp space-y-6">
+            {/* Possible Conditions */}
+            <div className="card shadow-2xl">
+              <h2 className="text-3xl font-bold text-green-600 mb-6 flex items-center gap-2">
+                <span>📊</span> Analysis Results
+              </h2>
 
-            <div className="p-4 bg-green-50 rounded border-l-4 border-green-500 mb-4">
-              <h3 className="text-xl font-bold text-green-600 mb-2">Possible Conditions:</h3>
-              {result.conditions && result.conditions.map((condition, idx) => (
-                <div key={idx} className="mb-3 p-3 bg-white rounded">
-                  <p className="font-bold text-gray-700">{condition.name}</p>
-                  <p className="text-gray-600">
-                    Probability: {(condition.probability * 100).toFixed(0)}% | 
-                    Severity: <span className={`font-bold ${
-                      condition.severity === 'mild' ? 'text-green-600' :
-                      condition.severity === 'moderate' ? 'text-yellow-600' :
-                      'text-red-600'
-                    }`}>{condition.severity}</span>
-                  </p>
-                </div>
-              ))}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-gray-800">Possible Conditions:</h3>
+                {result.conditions && result.conditions.map((condition, idx) => (
+                  <div key={idx} className="p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border-l-4 border-blue-500">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <p className="text-2xl font-bold text-gray-800 mb-2">{condition.name}</p>
+                        <div className="flex gap-4 flex-wrap">
+                          <span className="badge badge-primary">
+                            📈 Probability: {(condition.probability * 100).toFixed(0)}%
+                          </span>
+                          <span className={`badge ${getSeverityColor(condition.severity)}`}>
+                            ⚠️ Severity: {condition.severity}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-4xl">
+                        {condition.severity === 'mild' ? '🟢' : 
+                         condition.severity === 'moderate' ? '🟡' : '🔴'}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="p-4 bg-blue-50 rounded border-l-4 border-blue-500 mb-4">
-              <h3 className="text-xl font-bold text-blue-600 mb-2">💊 Recommendations:</h3>
-              {result.recommendations && result.recommendations.map((rec, idx) => (
-                <p key={idx} className="text-gray-700 mb-2">✓ {rec}</p>
-              ))}
+            {/* Recommendations */}
+            <div className="card shadow-2xl">
+              <h3 className="text-2xl font-bold text-blue-600 mb-6 flex items-center gap-2">
+                <span>💊</span> Recommendations
+              </h3>
+              <div className="space-y-3">
+                {result.recommendations && result.recommendations.map((rec, idx) => (
+                  <div key={idx} className="p-4 bg-blue-50 rounded-lg flex gap-3 items-start">
+                    <span className="text-2xl">✅</span>
+                    <p className="text-gray-700 text-lg">{rec}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="p-4 bg-yellow-50 border border-yellow-300 rounded">
-              <p className="text-yellow-800">
-                <strong>⚠️ Disclaimer:</strong> This AI analysis is for informational purposes only. 
-                Please consult a licensed doctor for proper diagnosis and treatment.
+            {/* Disclaimer */}
+            <div className="card bg-yellow-50 border-2 border-yellow-300">
+              <p className="text-yellow-800 text-lg flex gap-3 items-start">
+                <span className="text-2xl">⚠️</span>
+                <span>
+                  <strong>Medical Disclaimer:</strong> This AI analysis is for informational purposes only and should not be considered as medical advice. Always consult a qualified healthcare professional for proper diagnosis, treatment, and medical guidance.
+                </span>
               </p>
+            </div>
+
+            {/* CTA Button */}
+            <div className="text-center">
+              <a
+                href="tel:102"
+                className="inline-block btn-danger text-lg py-4 px-8"
+              >
+                🚑 Call Ambulance - 102
+              </a>
             </div>
           </div>
         )}
       </div>
-
-      {/* Info Box */}
-      {!voiceService.isSupported() && (
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-300 rounded">
-          <p className="text-blue-800">
-            <strong>ℹ️ Note:</strong> Voice input works best on Chrome, Edge, or Safari browsers.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
